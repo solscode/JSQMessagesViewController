@@ -121,4 +121,14 @@ FOUNDATION_EXPORT const CGFloat kJSQMessagesToolbarContentViewHorizontalSpacingD
  */
 + (UINib *)nib;
 
+// custom 
+
+- (void)showAddBarButtonView:(BOOL)show;
+
+@property (weak, nonatomic) UIButton *addBarButtonItem;
+@property (unsafe_unretained, nonatomic) IBOutlet UIButton *leftButton;
+@property (unsafe_unretained, nonatomic) IBOutlet UIButton *rightButton;
+@property (unsafe_unretained, nonatomic) IBOutlet UIView *addButtonContainerView;
+@property (unsafe_unretained, nonatomic) IBOutlet UIButton *addButton;
+
 @end
