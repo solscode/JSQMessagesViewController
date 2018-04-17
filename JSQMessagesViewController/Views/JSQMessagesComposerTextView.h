@@ -57,6 +57,9 @@
  */
 @property (weak, nonatomic) id<JSQMessagesComposerTextViewPasteDelegate> pasteDelegate;
 
+// custom
+@property (nonatomic) BOOL useTextCopy;
+
 /**
  *  Determines whether or not the text view contains text after trimming white space 
  *  from the front and back of its string.
@@ -64,5 +67,8 @@
  *  @return `YES` if the text view contains text, `NO` otherwise.
  */
 - (BOOL)hasText;
+
+// custom
+- (void)updateReturnKeySettingWithKeyboardOption:(BOOL)useSendKey;
 
 @end
