@@ -25,31 +25,29 @@
 
 @implementation JSQMessagesComposerTextView
 
-@synthesize pasteDelegate;
-
 #pragma mark - Initialization
 
 - (void)jsq_configureTextView
 {
     [self setTranslatesAutoresizingMaskIntoConstraints:NO];
 
-    CGFloat cornerRadius = 6.0f;
+    CGFloat cornerRadius = 4.0f;
 
     self.backgroundColor = [UIColor whiteColor];
-    self.layer.borderWidth = 0.5f;
+    self.layer.borderWidth = 0.0f;
     self.layer.borderColor = [UIColor lightGrayColor].CGColor;
     self.layer.cornerRadius = cornerRadius;
 
     self.scrollIndicatorInsets = UIEdgeInsetsMake(cornerRadius, 0.0f, cornerRadius, 0.0f);
 
-    self.textContainerInset = UIEdgeInsetsMake(4.0f, 2.0f, 4.0f, 2.0f);
+    self.textContainerInset = UIEdgeInsetsMake(7.0f, 2.0f, 7.0f, 2.0f);
     self.contentInset = UIEdgeInsetsMake(1.0f, 0.0f, 1.0f, 0.0f);
 
     self.scrollEnabled = YES;
     self.scrollsToTop = NO;
     self.userInteractionEnabled = YES;
 
-    self.font = [UIFont systemFontOfSize:16.0f];
+    self.font = [UIFont systemFontOfSize:14.0f];
     self.textColor = [UIColor blackColor];
     self.textAlignment = NSTextAlignmentNatural;
 
@@ -85,6 +83,8 @@
 - (void)dealloc
 {
     [self jsq_removeTextViewNotificationObservers];
+    _placeHolder = nil;
+    _placeHolderTextColor = nil;
 }
 
 #pragma mark - Composer text view
@@ -144,9 +144,27 @@
 
 - (void)paste:(id)sender
 {
-    if (!self.pasteDelegate || [self.pasteDelegate composerTextView:self shouldPasteWithSender:sender]) {
-        [super paste:sender];
+    if (([[[UIDevice currentDevice] systemVersion] compare:@"11.0" options:NSNumericSearch] != NSOrderedAscending)) {
+        if (!self.pasteDelegate || [self.pasteDelegate composerTextView:self shouldPasteWithSender:sender]) {
+            [super paste:sender];
+        }
+    } else {
+        if ([[UIPasteboard generalPasteboard].string isKindOfClass:[NSString class]]) {
+            [super paste:sender];
+        }
     }
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+    [UIMenuController sharedMenuController].menuItems = nil;
+    
+    if (!self.useTextCopy) {
+        if (action == @selector(copy:) || action == @selector(cut:)) {
+            return NO;
+        }
+    }
+    
+    return [super canPerformAction:action withSender:sender];
 }
 
 #pragma mark - Drawing
@@ -158,7 +176,7 @@
     if ([self.text length] == 0 && self.placeHolder) {
         [self.placeHolderTextColor set];
 
-        [self.placeHolder drawInRect:CGRectInset(rect, 7.0f, 5.0f)
+        [self.placeHolder drawInRect:CGRectInset(rect, 7.0f, 8.0f)
                       withAttributes:[self jsq_placeholderTextAttributes]];
     }
 }
@@ -216,6 +234,48 @@
               NSParagraphStyleAttributeName : paragraphStyle };
 }
 
+
+// touch input field keyboard
+- (void)addGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+{
+    [super addGestureRecognizer:gestureRecognizer];
+    if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+        UITapGestureRecognizer *tgr = (UITapGestureRecognizer *)gestureRecognizer;
+        if ([tgr numberOfTapsRequired] == 1 &&
+            [tgr numberOfTouchesRequired] == 1) {
+            [tgr addTarget:self action:@selector(_handleOneFingerTap:)];
+        }
+    }
+}
+
+- (void)removeGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+{
+    if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
+        UITapGestureRecognizer *tgr = (UITapGestureRecognizer *)gestureRecognizer;
+        if ([tgr numberOfTapsRequired] == 1 &&
+            [tgr numberOfTouchesRequired] == 1) {
+            [tgr removeTarget:self action:@selector(_handleOneFingerTap:)];
+        }
+    }
+    [super removeGestureRecognizer:gestureRecognizer];
+}
+
+- (void)_handleOneFingerTap:(UITapGestureRecognizer *)tgr
+{
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:tgr forKey:@"UITapGestureRecognizer"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"jsqComposerTextViewOneFingerTapNotification" object:self userInfo:userInfo];
+}
+
+#pragma mark - Interface Methods (Custom)
+
+- (void)updateReturnKeySettingWithKeyboardOption:(BOOL)useSendKey {
+    if (useSendKey) {
+        self.returnKeyType = UIReturnKeySend;
+    } else {
+        self.returnKeyType = UIReturnKeyDefault;
+    }
+}
+
 #pragma mark - UIMenuController
 
 - (BOOL)canBecomeFirstResponder
@@ -228,8 +288,4 @@
     return [super becomeFirstResponder];
 }
 
-- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
-    [UIMenuController sharedMenuController].menuItems = nil;
-    return [super canPerformAction:action withSender:sender];
-}
 @end
