@@ -147,6 +147,15 @@
                       atIndexPath:indexPath];
 }
 
+- (void)messagesCollectionViewCellDidTapMessageBubbleTopLabel:(JSQMessagesCollectionViewCell *)cell {
+    NSIndexPath *indexPath = [self indexPathForCell:cell];
+    if (indexPath == nil) {
+        return;
+    }
+    
+    [self.delegate collectionView:self didTapMessageBubbleTopLabelAtIndexPath:indexPath];
+}
+
 - (void)messagesCollectionViewCellDidTapMessageBubble:(JSQMessagesCollectionViewCell *)cell
 {
     NSIndexPath *indexPath = [self indexPathForCell:cell];
@@ -167,6 +176,24 @@
     [self.delegate collectionView:self
             didTapCellAtIndexPath:indexPath
                     touchLocation:position];
+}
+
+- (void)messagesCollectionViewCellDidTapFailButton:(JSQMessagesCollectionViewCell *)cell sender:(id)sender {
+    NSIndexPath *indexPath = [self indexPathForCell:cell];
+    if (indexPath == nil) {
+        return;
+    }
+    
+    [self.delegate collectionView:self didTapFailButtonAtIndexPath:indexPath];
+}
+
+- (void)messagesCollectionViewCellDidTapGotoSystemNotificationButton:(JSQMessagesCollectionViewCell *)cell sender:(id)sender {
+    NSIndexPath *indexPath = [self indexPathForCell:cell];
+    if (indexPath == nil) {
+        return;
+    }
+    
+    [self.delegate collectionView:self didTapGotoSystemNotificationButtonAtIndexPath:indexPath];
 }
 
 - (void)messagesCollectionViewCell:(JSQMessagesCollectionViewCell *)cell didPerformAction:(SEL)action withSender:(id)sender
