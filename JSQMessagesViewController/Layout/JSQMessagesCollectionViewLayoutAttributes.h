@@ -18,6 +18,8 @@
 
 #import <UIKit/UIKit.h>
 
+const CGFloat kJSQMessagesLabelVerticalSpaceDefault = 8.0f;
+
 /**
  *  A `JSQMessagesCollectionViewLayoutAttributes` is an object that manages the layout-related attributes
  *  for a given `JSQMessagesCollectionViewCell` in a `JSQMessagesCollectionView`.
@@ -86,6 +88,9 @@
  *  @see JSQMessagesCollectionViewCell.
  */
 @property (assign, nonatomic) CGFloat cellTopLabelHeight;
+@property (assign, nonatomic) CGFloat cellTopBelowLabelHeight;
+@property (assign, nonatomic) CGFloat cellTopLabelToCellTopBelowLabelVerticalSpace;
+@property (assign, nonatomic) CGFloat cellTopBelowLabelToMessageBubbleToplabelVerticalSpace;
 
 /**
  *  The height of the `messageBubbleTopLabel` of a `JSQMessagesCollectionViewCell`.
@@ -102,5 +107,9 @@
  *  @see JSQMessagesCollectionViewCell.
  */
 @property (assign, nonatomic) CGFloat cellBottomLabelHeight;
+@property (assign, nonatomic) CGFloat cellBottomCountLabelHeight;
+@property (assign, nonatomic) CGFloat cellBottomFailButtonHeight;
+@property (assign, nonatomic) CGFloat systemNotificationImageViewHeight;
+@property (assign, nonatomic) CGFloat gotoSystemNotificationButtonsContainerViewHeight;
 
 @end
