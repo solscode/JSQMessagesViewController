@@ -35,8 +35,8 @@
 #import "UIImage+JSQMessages.h"
 
 
-const CGFloat kJSQMessagesCollectionViewCellLabelHeightDefault = 20.0f;
-const CGFloat kJSQMessagesCollectionViewAvatarSizeDefault = 30.0f;
+const CGFloat kJSQMessagesCollectionViewCellLabelHeightDefault = 23.0f;
+const CGFloat kJSQMessagesCollectionViewAvatarSizeDefault = 38.0f;
 
 
 @interface JSQMessagesCollectionViewFlowLayout ()
@@ -62,23 +62,23 @@ const CGFloat kJSQMessagesCollectionViewAvatarSizeDefault = 30.0f;
 {
     self.scrollDirection = UICollectionViewScrollDirectionVertical;
     self.sectionInset = UIEdgeInsetsMake(10.0f, 4.0f, 10.0f, 4.0f);
-    self.minimumLineSpacing = 4.0f;
+    self.minimumLineSpacing = 9.0f;
     
-    _messageBubbleFont = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    _messageBubbleFont = [UIFont systemFontOfSize:14.0];
     
     if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         _messageBubbleLeftRightMargin = 240.0f;
     }
     else {
-        _messageBubbleLeftRightMargin = 50.0f;
+        _messageBubbleLeftRightMargin = 76.0f;
     }
     
     _messageBubbleTextViewFrameInsets = UIEdgeInsetsMake(0.0f, 0.0f, 0.0f, 6.0f);
-    _messageBubbleTextViewTextContainerInsets = UIEdgeInsetsMake(7.0f, 14.0f, 7.0f, 14.0f);
+    _messageBubbleTextViewTextContainerInsets = UIEdgeInsetsMake(7.0f, 7.0f, 7.0f, 5.0f);
     
     CGSize defaultAvatarSize = CGSizeMake(kJSQMessagesCollectionViewAvatarSizeDefault, kJSQMessagesCollectionViewAvatarSizeDefault);
     _incomingAvatarViewSize = defaultAvatarSize;
-    _outgoingAvatarViewSize = defaultAvatarSize;
+    _outgoingAvatarViewSize = CGSizeZero;
     
     _springinessEnabled = NO;
     _springResistanceFactor = 1000;
@@ -122,6 +122,15 @@ const CGFloat kJSQMessagesCollectionViewAvatarSizeDefault = 30.0f;
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    _messageBubbleFont = nil;
+    _bubbleSizeCalculator = nil;
+    
+    [_dynamicAnimator removeAllBehaviors];
+    _dynamicAnimator = nil;
+    
+    [_visibleIndexPaths removeAllObjects];
+    _visibleIndexPaths = nil;
 }
 
 #pragma mark - Setters
@@ -404,8 +413,7 @@ const CGFloat kJSQMessagesCollectionViewAvatarSizeDefault = 30.0f;
 
 - (CGSize)messageBubbleSizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<JSQMessageData> messageItem = [self.collectionView.dataSource collectionView:self.collectionView
-                                                      messageDataForItemAtIndexPath:indexPath];
+    id<JSQMessageData> messageItem = [self.collectionView.dataSource collectionView:self.collectionView messageDataForItemAtIndexPath:indexPath loadDataIfNeeded:NO];
 
     return [self.bubbleSizeCalculator messageBubbleSizeForMessageData:messageItem
                                                           atIndexPath:indexPath
@@ -419,8 +427,14 @@ const CGFloat kJSQMessagesCollectionViewAvatarSizeDefault = 30.0f;
     
     CGFloat finalHeight = messageBubbleSize.height;
     finalHeight += attributes.cellTopLabelHeight;
+    finalHeight += attributes.cellTopLabelToCellTopBelowLabelVerticalSpace;
+    finalHeight += attributes.cellTopBelowLabelHeight;
+    finalHeight += attributes.cellTopBelowLabelToMessageBubbleToplabelVerticalSpace;
     finalHeight += attributes.messageBubbleTopLabelHeight;
-    finalHeight += attributes.cellBottomLabelHeight;
+//    finalHeight += attributes.cellBottomLabelHeight;
+    
+    finalHeight += attributes.systemNotificationImageViewHeight;
+    finalHeight += attributes.gotoSystemNotificationButtonsContainerViewHeight;
     
     return CGSizeMake(self.itemWidth, ceilf(finalHeight));
 }
@@ -446,14 +460,33 @@ const CGFloat kJSQMessagesCollectionViewAvatarSizeDefault = 30.0f;
     layoutAttributes.cellTopLabelHeight = [self.collectionView.delegate collectionView:self.collectionView
                                                                                 layout:self
                                                       heightForCellTopLabelAtIndexPath:indexPath];
+
+    layoutAttributes.cellTopBelowLabelHeight = [self.collectionView.delegate collectionView:self.collectionView
+                                                                                layout:self
+                                                      heightForCellTopBelowLabelAtIndexPath:indexPath];
+    
+    layoutAttributes.cellTopLabelToCellTopBelowLabelVerticalSpace = (layoutAttributes.cellTopLabelHeight > 0.0f) ? kJSQMessagesLabelVerticalSpaceDefault : 0.0f;
+    layoutAttributes.cellTopBelowLabelToMessageBubbleToplabelVerticalSpace = (layoutAttributes.cellTopBelowLabelHeight > 0.0f) ? kJSQMessagesLabelVerticalSpaceDefault : 0.0f;
     
     layoutAttributes.messageBubbleTopLabelHeight = [self.collectionView.delegate collectionView:self.collectionView
                                                                                          layout:self
                                                       heightForMessageBubbleTopLabelAtIndexPath:indexPath];
-    
     layoutAttributes.cellBottomLabelHeight = [self.collectionView.delegate collectionView:self.collectionView
                                                                                    layout:self
                                                       heightForCellBottomLabelAtIndexPath:indexPath];
+    layoutAttributes.cellBottomCountLabelHeight = [self.collectionView.delegate collectionView:self.collectionView
+                                                                                        layout:self
+                                                      heightForCellBottomCountLabelAtIndexPath:indexPath];
+    layoutAttributes.cellBottomFailButtonHeight = [self.collectionView.delegate collectionView:self.collectionView
+                                                                                        layout:self
+                                                      heightForCellBottomFailButtonAtIndexPath:indexPath];
+    layoutAttributes.systemNotificationImageViewHeight = [self.collectionView.delegate collectionView:self.collectionView
+                                                                                    messageBubbleSize:messageBubbleSize
+                                                      heightForSystemNotificationMessageImageViewAtIndexPath:indexPath];
+
+    layoutAttributes.gotoSystemNotificationButtonsContainerViewHeight = [self.collectionView.delegate collectionView:self.collectionView
+                                                                                                              layout:self
+                                                      heightForGotoSystemNotificationButtonsContainerViewAtIndexPath:indexPath];
 }
 
 #pragma mark - Spring behavior utilities
