@@ -115,6 +115,10 @@ FOUNDATION_EXPORT NSString * const JSQMessagesKeyboardControllerUserInfoKeyKeybo
  */
 - (id)init NS_UNAVAILABLE;
 
+// custom
+@property (assign, nonatomic) BOOL isUsingHardwareKeyboard;
+@property (assign, nonatomic) BOOL showStickerPadWhenHardwareKeyboard;
+
 /**
  *  Creates a new keyboard controller object with the specified textView, contextView, panGestureRecognizer, and delegate.
  *
