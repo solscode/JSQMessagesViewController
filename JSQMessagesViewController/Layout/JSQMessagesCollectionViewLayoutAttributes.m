@@ -20,6 +20,13 @@
 
 @implementation JSQMessagesCollectionViewLayoutAttributes
 
+#pragma mark - Lifecycle
+
+- (void)dealloc
+{
+    _messageBubbleFont = nil;
+}
+
 #pragma mark - Init
 
 - (instancetype)init {
@@ -61,6 +68,14 @@
 {
     NSParameterAssert(cellTopLabelHeight >= 0.0f);
     _cellTopLabelHeight = [self jsq_correctedLabelHeightForHeight:cellTopLabelHeight];
+    _cellTopLabelToCellTopBelowLabelVerticalSpace = (cellTopLabelHeight > 0.0f) ? kJSQMessagesLabelVerticalSpaceDefault : 0.0f;
+}
+
+- (void)setCellTopBelowLabelHeight:(CGFloat)cellTopBelowLabelHeight
+{
+    NSParameterAssert(cellTopBelowLabelHeight >= 0.0f);
+    _cellTopBelowLabelHeight = [self jsq_correctedLabelHeightForHeight:cellTopBelowLabelHeight];
+    _cellTopBelowLabelToMessageBubbleToplabelVerticalSpace = (cellTopBelowLabelHeight > 0.0f) ? kJSQMessagesLabelVerticalSpaceDefault : 0.0f;
 }
 
 - (void)setMessageBubbleTopLabelHeight:(CGFloat)messageBubbleTopLabelHeight
@@ -73,6 +88,30 @@
 {
     NSParameterAssert(cellBottomLabelHeight >= 0.0f);
     _cellBottomLabelHeight = [self jsq_correctedLabelHeightForHeight:cellBottomLabelHeight];
+}
+
+- (void)setCellBottomCountLabelHeight:(CGFloat)cellBottomCountLabelHeight
+{
+    NSParameterAssert(cellBottomCountLabelHeight >= 0.0f);
+    _cellBottomCountLabelHeight = [self jsq_correctedLabelHeightForHeight:cellBottomCountLabelHeight];
+}
+
+- (void)setCellBottomFailButtonHeight:(CGFloat)cellBottomFailButtonHeight
+{
+    NSParameterAssert(cellBottomFailButtonHeight >= 0.0f);
+    _cellBottomFailButtonHeight = [self jsq_correctedLabelHeightForHeight:cellBottomFailButtonHeight];
+}
+
+- (void)setSystemNotificationImageViewHeight:(CGFloat)systemNotificationImageViewHeight
+{
+    NSParameterAssert(systemNotificationImageViewHeight >= 0.0f);
+    _systemNotificationImageViewHeight = [self jsq_correctedLabelHeightForHeight:systemNotificationImageViewHeight];
+}
+
+- (void)setGotoSystemNotificationButtonsContainerViewHeight:(CGFloat)gotoSystemNotificationButtonsContainerViewHeight
+{
+    NSParameterAssert(gotoSystemNotificationButtonsContainerViewHeight >= 0.0f);
+    _gotoSystemNotificationButtonsContainerViewHeight = [self jsq_correctedLabelHeightForHeight:gotoSystemNotificationButtonsContainerViewHeight];
 }
 
 #pragma mark - Utilities
@@ -109,8 +148,15 @@
             || !CGSizeEqualToSize(layoutAttributes.outgoingAvatarViewSize, self.outgoingAvatarViewSize)
             || (int)layoutAttributes.messageBubbleContainerViewWidth != (int)self.messageBubbleContainerViewWidth
             || (int)layoutAttributes.cellTopLabelHeight != (int)self.cellTopLabelHeight
+            || (int)layoutAttributes.cellTopBelowLabelHeight != (int)self.cellTopBelowLabelHeight
+            || (int)layoutAttributes.cellTopLabelToCellTopBelowLabelVerticalSpace != (int)self.cellTopLabelToCellTopBelowLabelVerticalSpace
+            || (int)layoutAttributes.cellTopBelowLabelToMessageBubbleToplabelVerticalSpace != (int)self.cellTopBelowLabelToMessageBubbleToplabelVerticalSpace
             || (int)layoutAttributes.messageBubbleTopLabelHeight != (int)self.messageBubbleTopLabelHeight
-            || (int)layoutAttributes.cellBottomLabelHeight != (int)self.cellBottomLabelHeight) {
+            || (int)layoutAttributes.cellBottomLabelHeight != (int)self.cellBottomLabelHeight
+            || (int)layoutAttributes.cellBottomCountLabelHeight != (int)self.cellBottomCountLabelHeight
+            || (int)layoutAttributes.cellBottomFailButtonHeight != (int)self.cellBottomFailButtonHeight
+            || (int)layoutAttributes.systemNotificationImageViewHeight != (int)self.systemNotificationImageViewHeight
+            || (int)layoutAttributes.gotoSystemNotificationButtonsContainerViewHeight != (int)self.gotoSystemNotificationButtonsContainerViewHeight) {
             return NO;
         }
     }
@@ -140,8 +186,15 @@
     copy.incomingAvatarViewSize = self.incomingAvatarViewSize;
     copy.outgoingAvatarViewSize = self.outgoingAvatarViewSize;
     copy.cellTopLabelHeight = self.cellTopLabelHeight;
+    copy.cellTopBelowLabelHeight = self.cellTopBelowLabelHeight;
+    copy.cellTopLabelToCellTopBelowLabelVerticalSpace = self.cellTopLabelToCellTopBelowLabelVerticalSpace;
+    copy.cellTopBelowLabelToMessageBubbleToplabelVerticalSpace = self.cellTopBelowLabelToMessageBubbleToplabelVerticalSpace;
     copy.messageBubbleTopLabelHeight = self.messageBubbleTopLabelHeight;
     copy.cellBottomLabelHeight = self.cellBottomLabelHeight;
+    copy.cellBottomCountLabelHeight = self.cellBottomCountLabelHeight;
+    copy.cellBottomFailButtonHeight = self.cellBottomFailButtonHeight;
+    copy.systemNotificationImageViewHeight = self.systemNotificationImageViewHeight;
+    copy.gotoSystemNotificationButtonsContainerViewHeight = self.gotoSystemNotificationButtonsContainerViewHeight;
     
     return copy;
 }
