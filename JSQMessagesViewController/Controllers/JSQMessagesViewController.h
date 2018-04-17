@@ -172,6 +172,31 @@
  */
 @property (assign, nonatomic) CGFloat topContentAdditionalInset;
 
+// custom
+@property (unsafe_unretained, nonatomic) IBOutlet UIView *noticeView;
+@property (assign, nonatomic) CGFloat noticeViewOriginY;
+@property (unsafe_unretained, nonatomic) IBOutlet UIButton *noticeFoldedButton;
+@property (assign, nonatomic) CGFloat noticeFoldedButtonOriginY;
+
+@property (unsafe_unretained, nonatomic) IBOutlet UIView *gotoBottomView;
+@property (unsafe_unretained, nonatomic) IBOutlet UIImageView *gotoBottomProfileImageView;
+@property (unsafe_unretained, nonatomic) IBOutlet UILabel *gotoBottomMessageLabel;
+@property (unsafe_unretained, nonatomic) IBOutlet UILabel *gotoBottomNameLabel;
+@property (unsafe_unretained, nonatomic) IBOutlet UIButton *gotoBottomButton;
+@property (nonatomic) BOOL gotoBottomWhenTextViewEditing;
+@property (unsafe_unretained, nonatomic) IBOutlet UIImageView *indicatorImageView;
+
+@property (unsafe_unretained, nonatomic) IBOutlet UIView *gotoSystemNotificationView;
+@property (unsafe_unretained, nonatomic) IBOutlet UIButton *gotoSystemNotificationButton;
+@property (unsafe_unretained, nonatomic) IBOutlet UIView *searchUpDownView;
+@property (unsafe_unretained, nonatomic) IBOutlet UIButton *searchUpButton;
+@property (unsafe_unretained, nonatomic) IBOutlet UIButton *searchDownButton;
+
+@property (unsafe_unretained, nonatomic) IBOutlet NSLayoutConstraint *gotoBottomProfileImageViewConstraintsWidth;
+@property (unsafe_unretained, nonatomic) IBOutlet NSLayoutConstraint *searchUpDownViewConstraintsBottom;
+@property (unsafe_unretained, nonatomic) IBOutlet NSLayoutConstraint *gotoBottomViewConstraintsVerticalHeight;
+@property (unsafe_unretained, nonatomic) IBOutlet NSLayoutConstraint *indicatorImageViewConstraintsVerticalHeight;
+
 #pragma mark - Class methods
 
 /**
@@ -267,6 +292,17 @@
  *  @param animated Pass `YES` if you want to animate scrolling, `NO` if it should be immediate.
  */
 - (void)scrollToBottomAnimated:(BOOL)animated;
+
+// custom
+- (void)scrolledToBottom;
+- (void)textViewHeightChanged;
+- (void)willRotate;
+- (void)didRotate;
+- (void)willShowJsqMenuAtIndexPath:(NSIndexPath *)indexPath;
+- (void)willHideJsqMenu;
+- (void)textViewDidChange;
+- (void)textViewDidEndEditing;
+- (void)textViewWillLimitLengthWithShowAllowedLengthAlert:(BOOL)showAlert;
 
 /**
  * Used to decide if a message is incoming or outgoing.
