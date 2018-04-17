@@ -39,7 +39,7 @@
 /**
  *  Returns the image view for this placeholder view, or `nil` if it does not exist.
  */
-@property (nonatomic, weak, readonly) UIImageView *imageView;
+@property (nonatomic, weak) UIImageView *imageView;
 
 /**
  *  Creates a media placeholder view object with a light gray background and
@@ -88,5 +88,7 @@
 - (instancetype)initWithFrame:(CGRect)frame
               backgroundColor:(UIColor *)backgroundColor
                     imageView:(UIImageView *)imageView;
+
+- (instancetype)initWithFrame:(CGRect)frame backgroundColor:(UIColor *)backgroundColor;
 
 @end
