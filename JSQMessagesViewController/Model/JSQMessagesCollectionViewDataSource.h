@@ -60,7 +60,7 @@
  *
  *  @return An initialized object that conforms to the `JSQMessageData` protocol. You must not return `nil` from this method.
  */
-- (id<JSQMessageData>)collectionView:(JSQMessagesCollectionView *)collectionView messageDataForItemAtIndexPath:(NSIndexPath *)indexPath;
+- (id<JSQMessageData>)collectionView:(JSQMessagesCollectionView *)collectionView messageDataForItemAtIndexPath:(NSIndexPath *)indexPath loadDataIfNeeded:(BOOL)loadDataIfNeeded;
 
 /**
  *  Notifies the data source that the item at indexPath has been deleted. 
@@ -124,6 +124,8 @@
  */
 - (NSAttributedString *)collectionView:(JSQMessagesCollectionView *)collectionView attributedTextForCellTopLabelAtIndexPath:(NSIndexPath *)indexPath;
 
+- (NSAttributedString *)collectionView:(JSQMessagesCollectionView *)collectionView attributedTextForCellTopBelowLabelAtIndexPath:(NSIndexPath *)indexPath;
+
 /**
  *  Asks the data source for the text to display in the `messageBubbleTopLabel` for the specified
  *  message data item at indexPath in the collectionView.
@@ -138,6 +140,8 @@
  */
 - (NSAttributedString *)collectionView:(JSQMessagesCollectionView *)collectionView attributedTextForMessageBubbleTopLabelAtIndexPath:(NSIndexPath *)indexPath;
 
+- (NSAttributedString *)collectionView:(JSQMessagesCollectionView *)collectionView attributedTextForGotoSystemNotificationTitledButtonAtIndexPath:(NSIndexPath *)indexPath;
+
 /**
  *  Asks the data source for the text to display in the `cellBottomLabel` for the the specified
  *  message data item at indexPath in the collectionView.
@@ -151,5 +155,6 @@
  *  @see JSQMessagesCollectionViewCell.
  */
 - (NSAttributedString *)collectionView:(JSQMessagesCollectionView *)collectionView attributedTextForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath;
+- (NSAttributedString *)collectionView:(JSQMessagesCollectionView *)collectionView attributedTextForCellBottomCountLabelAtIndexPath:(NSIndexPath *)indexPath;
 
 @end
