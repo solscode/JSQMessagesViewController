@@ -44,6 +44,7 @@
  *  @param cell The cell that received the tap touch event.
  */
 - (void)messagesCollectionViewCellDidTapMessageBubble:(JSQMessagesCollectionViewCell *)cell;
+- (void)messagesCollectionViewCellDidTapMessageBubbleTopLabel:(JSQMessagesCollectionViewCell *)cell;
 
 /**
  *  Tells the delegate that the cell has been tapped at the point specified by position.
@@ -72,6 +73,11 @@
  */
 - (void)messagesCollectionViewCell:(JSQMessagesCollectionViewCell *)cell didPerformAction:(SEL)action withSender:(id)sender;
 
+@optional
+
+- (void)messagesCollectionViewCellDidTapFailButton:(JSQMessagesCollectionViewCell *)cell sender:(id)sender;
+- (void)messagesCollectionViewCellDidTapGotoSystemNotificationButton:(JSQMessagesCollectionViewCell *)cell sender:(id)sender;
+
 @end
 
 
@@ -97,6 +103,7 @@
  *  This label is most commonly used to display message timestamps.
  */
 @property (weak, nonatomic, readonly) JSQMessagesLabel *cellTopLabel;
+@property (weak, nonatomic, readonly) JSQMessagesLabel *cellTopBelowLabel;
 
 /**
  *  Returns the label that is pinned just above the messageBubbleImageView, and below the cellTopLabel.
@@ -104,11 +111,15 @@
  */
 @property (weak, nonatomic, readonly) JSQMessagesLabel *messageBubbleTopLabel;
 
+@property (weak, nonatomic, readonly) UIButton *gotoSystemNotificationTitledButton;
+
 /**
  *  Returns the label that is pinned to the bottom of the cell.
  *  This label is most commonly used to display message delivery status.
  */
 @property (weak, nonatomic, readonly) JSQMessagesLabel *cellBottomLabel;
+@property (weak, nonatomic, readonly) JSQMessagesLabel *cellBottomCountLabel;
+@property (weak, nonatomic, readonly) UIButton *cellBottomFailButton;
 
 /**
  *  Returns the text view of the cell. This text view contains the message body text.
@@ -124,6 +135,8 @@
  */
 @property (weak, nonatomic, readonly) UIImageView *messageBubbleImageView;
 
+@property (weak, nonatomic, readonly) UIImageView *systemNotificationImageView;
+
 /**
  *  Returns the message bubble container view of the cell. This view is the superview of
  *  the cell's textView and messageBubbleImageView.
@@ -136,6 +149,12 @@
  *  Doing so could result in unexpected behavior.
  */
 @property (weak, nonatomic, readonly) UIView *messageBubbleContainerView;
+
+@property (weak, nonatomic, readonly) UIView *gotoSystemNotificationButtonsContainerView;
+
+@property (weak, nonatomic, readonly) UIView *gotoSystemNotificationButtonsView;
+
+@property (weak, nonatomic, readonly) UIView *gotoSystemNotificationButtonsLineView;
 
 /**
  *  Returns the avatar image view of the cell that is responsible for displaying avatar images.
