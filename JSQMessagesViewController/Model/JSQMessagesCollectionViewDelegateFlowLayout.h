@@ -48,6 +48,9 @@
 - (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
                    layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout heightForCellTopLabelAtIndexPath:(NSIndexPath *)indexPath;
 
+- (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
+                   layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout heightForCellTopBelowLabelAtIndexPath:(NSIndexPath *)indexPath;
+
 /**
  *  Asks the delegate for the height of the `messageBubbleTopLabel` for the item at the specified indexPath.
  *
@@ -75,7 +78,14 @@
  */
 - (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
                    layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout heightForCellBottomLabelAtIndexPath:(NSIndexPath *)indexPath;
-
+- (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
+                   layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout heightForCellBottomCountLabelAtIndexPath:(NSIndexPath *)indexPath;
+- (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
+                   layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout heightForCellBottomFailButtonAtIndexPath:(NSIndexPath *)indexPath;
+- (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
+        messageBubbleSize:(CGSize)messageBubbleSize heightForSystemNotificationMessageImageViewAtIndexPath:(NSIndexPath *)indexPath;
+- (CGFloat)collectionView:(JSQMessagesCollectionView *)collectionView
+                   layout:(JSQMessagesCollectionViewFlowLayout *)collectionViewLayout heightForGotoSystemNotificationButtonsContainerViewAtIndexPath:(NSIndexPath *)indexPath;
 /**
  *  Notifies the delegate that the avatar image view at the specified indexPath did receive a tap event.
  *
@@ -91,7 +101,10 @@
  *  @param collectionView The collection view object that is notifying the delegate of the tap event.
  *  @param indexPath      The index path of the item for which the message bubble was tapped.
  */
+- (void)collectionView:(JSQMessagesCollectionView *)collectionView didTapMessageBubbleTopLabelAtIndexPath:(NSIndexPath *)indexPath;
 - (void)collectionView:(JSQMessagesCollectionView *)collectionView didTapMessageBubbleAtIndexPath:(NSIndexPath *)indexPath;
+- (void)collectionView:(JSQMessagesCollectionView *)collectionView didTapFailButtonAtIndexPath:(NSIndexPath *)indexPath;
+- (void)collectionView:(JSQMessagesCollectionView *)collectionView didTapGotoSystemNotificationButtonAtIndexPath:(NSIndexPath *)indexPath;
 
 /**
  *  Notifies the delegate that the cell at the specified indexPath did receive a tap event at the specified touchLocation.
