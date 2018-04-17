@@ -39,7 +39,7 @@ typedef void (^JSQAnimationCompletionBlock)(BOOL finished);
 
 @property (assign, nonatomic) BOOL jsq_isObserving;
 
-@property (strong, nonatomic) UIView *keyboardView;
+@property (weak, nonatomic) UIView *keyboardView;
 
 @end
 
@@ -66,6 +66,8 @@ typedef void (^JSQAnimationCompletionBlock)(BOOL finished);
         _panGestureRecognizer = panGestureRecognizer;
         _delegate = delegate;
         _jsq_isObserving = NO;
+        _isUsingHardwareKeyboard = NO;
+        _showStickerPadWhenHardwareKeyboard = NO;
     }
     return self;
 }
@@ -74,8 +76,13 @@ typedef void (^JSQAnimationCompletionBlock)(BOOL finished);
 {
     [self jsq_removeKeyboardFrameObserver];
     [self jsq_unregisterForNotifications];
+    _textView = nil;
+    _contextView = nil;
     _panGestureRecognizer = nil;
     _delegate = nil;
+    _keyboardView = nil;
+    _isUsingHardwareKeyboard = nil;
+    _showStickerPadWhenHardwareKeyboard = nil;
 }
 
 #pragma mark - Setters
@@ -167,22 +174,7 @@ typedef void (^JSQAnimationCompletionBlock)(BOOL finished);
 
 - (void)jsq_didReceiveKeyboardDidShowNotification:(NSNotification *)notification
 {
-    UIView *keyboardViewProxy = self.textView.inputAccessoryView.superview;
-    if ([UIDevice jsq_isCurrentDeviceAfteriOS9]) {
-        NSPredicate *windowPredicate = [NSPredicate predicateWithFormat:@"self isMemberOfClass: %@", NSClassFromString(@"UIRemoteKeyboardWindow")];
-        UIWindow *keyboardWindow = [[UIApplication sharedApplication].windows filteredArrayUsingPredicate:windowPredicate].firstObject;
-
-        for (UIView *subview in keyboardWindow.subviews) {
-            for (UIView *hostview in subview.subviews) {
-                if ([hostview isMemberOfClass:NSClassFromString(@"UIInputSetHostView")]) {
-                    keyboardViewProxy = hostview;
-                    break;
-                }
-            }
-        }
-        self.keyboardView = keyboardViewProxy;
-    }
-
+    self.keyboardView = self.textView.inputAccessoryView.superview;
     [self jsq_setKeyboardViewHidden:NO];
 
     [self jsq_handleKeyboardNotification:notification completion:^(BOOL finished) {
@@ -211,12 +203,35 @@ typedef void (^JSQAnimationCompletionBlock)(BOOL finished);
     }];
 }
 
+#define PADDING_FOR_KEYBOARD_PORTRAIT    20
+#define PADDING_FOR_KEYBOARD_LANDSCAPE   10
+
 - (void)jsq_handleKeyboardNotification:(NSNotification *)notification completion:(JSQAnimationCompletionBlock)completion
 {
     NSDictionary *userInfo = [notification userInfo];
 
     CGRect keyboardEndFrame = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
 
+    // <-- custom for calculating hardware keyboard frame
+    CGRect beginFrame = [[userInfo objectForKey:@"UIKeyboardFrameBeginUserInfoKey"] CGRectValue];
+    CGRect endFrame = [[userInfo objectForKey:@"UIKeyboardFrameEndUserInfoKey"] CGRectValue];
+    CGRect beginCenter = [[userInfo objectForKey:@"UIKeyboardCenterBeginUserInfoKey"] CGRectValue];
+    self.isUsingHardwareKeyboard = ((beginFrame.origin.y == endFrame.origin.y) && (beginFrame.size.height == endFrame.size.height)) ? YES : NO;
+
+    if ([userInfo objectForKey:@"UIKeyboardIsLocalUserInfoKey"] && self.isUsingHardwareKeyboard && self.showStickerPadWhenHardwareKeyboard) {
+        keyboardEndFrame.origin.y = beginFrame.origin.y - endFrame.size.height;
+        
+        if (beginFrame.size.height == 0 && endFrame.size.height == 0) {
+            if (UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation)) {
+                keyboardEndFrame.size.height = floor((beginFrame.origin.y / 2.5)) - PADDING_FOR_KEYBOARD_LANDSCAPE;
+            } else {
+                keyboardEndFrame.size.height = floor((beginFrame.origin.y / 3)) - PADDING_FOR_KEYBOARD_PORTRAIT;
+            }
+            keyboardEndFrame.origin.y = beginFrame.origin.y - keyboardEndFrame.size.height;
+        }
+    }
+    // -->
+    
     if (CGRectIsNull(keyboardEndFrame)) {
         return;
     }
