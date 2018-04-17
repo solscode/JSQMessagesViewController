@@ -32,15 +32,23 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
 @interface JSQMessagesCollectionViewCell ()
 
 @property (weak, nonatomic) IBOutlet JSQMessagesLabel *cellTopLabel;
+@property (weak, nonatomic) IBOutlet JSQMessagesLabel *cellTopBelowLabel;
 @property (weak, nonatomic) IBOutlet JSQMessagesLabel *messageBubbleTopLabel;
 @property (weak, nonatomic) IBOutlet JSQMessagesLabel *cellBottomLabel;
+@property (weak, nonatomic) IBOutlet JSQMessagesLabel *cellBottomCountLabel;
+@property (weak, nonatomic) IBOutlet UIButton *cellBottomFailButton;
 
 @property (weak, nonatomic) IBOutlet UIView *messageBubbleContainerView;
 @property (weak, nonatomic) IBOutlet UIImageView *messageBubbleImageView;
 @property (weak, nonatomic) IBOutlet JSQMessagesCellTextView *textView;
-
+@property (weak, nonatomic) IBOutlet UIImageView *systemNotificationImageView;
 @property (weak, nonatomic) IBOutlet UIImageView *avatarImageView;
 @property (weak, nonatomic) IBOutlet UIView *avatarContainerView;
+
+@property (weak, nonatomic) IBOutlet UIButton *gotoSystemNotificationTitledButton;
+@property (weak, nonatomic) IBOutlet UIView *gotoSystemNotificationButtonsContainerView;
+@property (weak, nonatomic) IBOutlet UIView *gotoSystemNotificationButtonsView;
+@property (weak, nonatomic) IBOutlet UIView *gotoSystemNotificationButtonsLineView;
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *messageBubbleContainerWidthConstraint;
 
@@ -50,11 +58,22 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *textViewMarginHorizontalSpaceConstraint;
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *cellTopLabelHeightConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *cellTopBelowLabelHeightConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *cellTopLabelToCellTopBelowLabelVerticalSpaceConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *cellTopBelowLabelToMessagesBubbleTopLabelVerticalSpaceConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *cellTopBelowLabelToAvatarVerticalSpaceConstraint;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *messageBubbleTopLabelHeightConstraint;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *cellBottomLabelHeightConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *cellBottomCountLabelHeightConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *cellBottomFailButtonHeightConstraint;
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *avatarContainerViewWidthConstraint;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *avatarContainerViewHeightConstraint;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *gotoSystemNotificationButtonsContainerViewHeightConstraint;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *systemNotificationImageViewHeightConstraint;
+@property (unsafe_unretained, nonatomic) IBOutlet NSLayoutConstraint *bubbleContainerAvatarHorizontalSpaceConstraint;
+
 
 @property (assign, nonatomic) UIEdgeInsets textViewFrameInsets;
 
@@ -65,6 +84,10 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
 - (void)jsq_handleTapGesture:(UITapGestureRecognizer *)tap;
 
 - (void)jsq_updateConstraint:(NSLayoutConstraint *)constraint withConstant:(CGFloat)constant;
+
+- (IBAction)failButtonPressed:(id)sender;
+
+- (IBAction)gotoSystemNotificationButtonPressed:(id)sender;
 
 @end
 
@@ -114,18 +137,29 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     self.cellTopLabelHeightConstraint.constant = 0.0f;
     self.messageBubbleTopLabelHeightConstraint.constant = 0.0f;
     self.cellBottomLabelHeightConstraint.constant = 0.0f;
+    self.cellBottomCountLabelHeightConstraint.constant = 0.0f;
+    self.cellBottomFailButtonHeightConstraint.constant = 0.0f;
 
     self.avatarViewSize = CGSizeZero;
 
     self.cellTopLabel.textAlignment = NSTextAlignmentCenter;
-    self.cellTopLabel.font = [UIFont boldSystemFontOfSize:12.0f];
+    self.cellTopLabel.font = [UIFont systemFontOfSize:12.0f];
     self.cellTopLabel.textColor = [UIColor lightGrayColor];
+    
+    self.cellTopBelowLabel.textAlignment = NSTextAlignmentCenter;
+    self.cellTopBelowLabel.font = [UIFont systemFontOfSize:12.0f];
+    self.cellTopBelowLabel.textColor = [UIColor lightGrayColor];
 
-    self.messageBubbleTopLabel.font = [UIFont systemFontOfSize:12.0f];
+    self.messageBubbleTopLabel.font = [UIFont systemFontOfSize:13.0f];
     self.messageBubbleTopLabel.textColor = [UIColor lightGrayColor];
 
-    self.cellBottomLabel.font = [UIFont systemFontOfSize:11.0f];
+    self.cellBottomLabel.font = [UIFont systemFontOfSize:10.0f];
     self.cellBottomLabel.textColor = [UIColor lightGrayColor];
+    self.cellBottomCountLabel.font = [UIFont systemFontOfSize:9.0f];
+    self.cellBottomCountLabel.textColor = [UIColor lightGrayColor];
+    
+    self.systemNotificationImageViewHeightConstraint.constant = 0.0f;
+    self.gotoSystemNotificationButtonsContainerViewHeightConstraint.constant = 0.0f;
 
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(jsq_handleTapGesture:)];
     [self addGestureRecognizer:tap];
@@ -137,15 +171,24 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     _delegate = nil;
 
     _cellTopLabel = nil;
+    _cellTopBelowLabel = nil;
     _messageBubbleTopLabel = nil;
     _cellBottomLabel = nil;
+    _cellBottomCountLabel = nil;
+    _cellBottomFailButton = nil;
 
     _textView = nil;
     _messageBubbleImageView = nil;
     _mediaView = nil;
 
     _avatarImageView = nil;
-
+    
+    _systemNotificationImageView = nil;
+    _gotoSystemNotificationTitledButton = nil;
+    _gotoSystemNotificationButtonsContainerView = nil;
+    _gotoSystemNotificationButtonsView = nil;
+    _gotoSystemNotificationButtonsLineView = nil;
+    
     [_tapGestureRecognizer removeTarget:nil action:NULL];
     _tapGestureRecognizer = nil;
 }
@@ -157,15 +200,20 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     [super prepareForReuse];
 
     self.cellTopLabel.text = nil;
+    self.cellTopBelowLabel.text = nil;
     self.messageBubbleTopLabel.text = nil;
     self.cellBottomLabel.text = nil;
+    self.cellBottomCountLabel.text = nil;
 
     self.textView.dataDetectorTypes = UIDataDetectorTypeNone;
     self.textView.text = nil;
     self.textView.attributedText = nil;
+    self.textView.userInteractionEnabled = NO;
 
     self.avatarImageView.image = nil;
     self.avatarImageView.highlightedImage = nil;
+    
+    self.gotoSystemNotificationTitledButton.titleLabel.text = nil;
 }
 
 - (UICollectionViewLayoutAttributes *)preferredLayoutAttributesFittingAttributes:(UICollectionViewLayoutAttributes *)layoutAttributes
@@ -195,11 +243,26 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     [self jsq_updateConstraint:self.cellTopLabelHeightConstraint
                   withConstant:customAttributes.cellTopLabelHeight];
 
+    [self jsq_updateConstraint:self.cellTopBelowLabelHeightConstraint
+                  withConstant:customAttributes.cellTopBelowLabelHeight];
+    
+    [self jsq_updateConstraint:self.cellTopLabelToCellTopBelowLabelVerticalSpaceConstraint withConstant:customAttributes.cellTopLabelToCellTopBelowLabelVerticalSpace];
+    [self jsq_updateConstraint:self.cellTopBelowLabelToMessagesBubbleTopLabelVerticalSpaceConstraint withConstant:customAttributes.cellTopBelowLabelToMessageBubbleToplabelVerticalSpace];
+    [self jsq_updateConstraint:self.cellTopBelowLabelToAvatarVerticalSpaceConstraint withConstant:customAttributes.cellTopBelowLabelToMessageBubbleToplabelVerticalSpace];
+    
     [self jsq_updateConstraint:self.messageBubbleTopLabelHeightConstraint
                   withConstant:customAttributes.messageBubbleTopLabelHeight];
 
     [self jsq_updateConstraint:self.cellBottomLabelHeightConstraint
                   withConstant:customAttributes.cellBottomLabelHeight];
+    [self jsq_updateConstraint:self.cellBottomCountLabelHeightConstraint
+                  withConstant:customAttributes.cellBottomCountLabelHeight];
+    [self jsq_updateConstraint:self.cellBottomFailButtonHeightConstraint
+                  withConstant:customAttributes.cellBottomFailButtonHeight];
+    [self jsq_updateConstraint:self.systemNotificationImageViewHeightConstraint
+                  withConstant:customAttributes.systemNotificationImageViewHeight];
+    [self jsq_updateConstraint:self.gotoSystemNotificationButtonsContainerViewHeightConstraint
+                  withConstant:customAttributes.gotoSystemNotificationButtonsContainerViewHeight];
 
     if ([self isKindOfClass:[JSQMessagesCollectionViewCellIncoming class]]) {
         self.avatarViewSize = customAttributes.incomingAvatarViewSize;
@@ -211,16 +274,15 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
 
 - (void)setHighlighted:(BOOL)highlighted
 {
-    [super setHighlighted:highlighted];
-    self.avatarImageView.highlighted = highlighted;
-    self.messageBubbleImageView.highlighted = highlighted;
+//    [super setHighlighted:highlighted];
+//    self.messageBubbleImageView.highlighted = highlighted;
 }
 
 - (void)setSelected:(BOOL)selected
 {
-    [super setSelected:selected];
-    self.avatarImageView.highlighted = selected;
-    self.messageBubbleImageView.highlighted = selected;
+//    [super setSelected:selected];
+//    self.avatarImageView.highlighted = selected;
+//    self.messageBubbleImageView.highlighted = selected;
 }
 
 //  FIXME: radar 18326340
@@ -247,9 +309,6 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     }
 
     return [super respondsToSelector:aSelector];
-}
-
--(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
 }
 
 - (void)forwardInvocation:(NSInvocation *)anInvocation
@@ -282,12 +341,18 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     self.cellTopLabel.backgroundColor = backgroundColor;
     self.messageBubbleTopLabel.backgroundColor = backgroundColor;
     self.cellBottomLabel.backgroundColor = backgroundColor;
+    self.cellBottomCountLabel.backgroundColor = backgroundColor;
 
     self.messageBubbleImageView.backgroundColor = backgroundColor;
     self.avatarImageView.backgroundColor = backgroundColor;
 
     self.messageBubbleContainerView.backgroundColor = backgroundColor;
     self.avatarContainerView.backgroundColor = backgroundColor;
+    
+    self.systemNotificationImageView.backgroundColor = backgroundColor;
+    self.gotoSystemNotificationButtonsContainerView.backgroundColor = backgroundColor;
+    self.gotoSystemNotificationButtonsView.backgroundColor = backgroundColor;
+    self.gotoSystemNotificationButtonsLineView.backgroundColor = backgroundColor;
 }
 
 - (void)setAvatarViewSize:(CGSize)avatarViewSize
@@ -312,10 +377,22 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     [self jsq_updateConstraint:self.textViewMarginHorizontalSpaceConstraint withConstant:textViewFrameInsets.left];
 }
 
+//- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+//    // disable copy: to call this method and this should be called in JSQMessagesCellTextView.m aswell
+//    // set self.textView.userInteractionEnabled = YES;
+//    if (action == @selector(copy:)) {
+//        return NO;
+//    }
+//    return [super canPerformAction:action withSender:sender];
+//}
+
 - (void)setMediaView:(UIView *)mediaView
 {
     [self.messageBubbleImageView removeFromSuperview];
     [self.textView removeFromSuperview];
+    [self.systemNotificationImageView removeFromSuperview];
+
+    [self jsq_updateConstraint:self.bubbleContainerAvatarHorizontalSpaceConstraint withConstant:0.0f];
 
     [mediaView setTranslatesAutoresizingMaskIntoConstraints:NO];
     mediaView.frame = self.messageBubbleContainerView.bounds;
@@ -375,6 +452,9 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
     else if (CGRectContainsPoint(self.messageBubbleContainerView.frame, touchPt)) {
         [self.delegate messagesCollectionViewCellDidTapMessageBubble:self];
     }
+    else if (CGRectContainsPoint(self.messageBubbleTopLabel.frame, touchPt)) {
+        [self.delegate messagesCollectionViewCellDidTapMessageBubbleTopLabel:self];
+    }
     else {
         [self.delegate messagesCollectionViewCellDidTapCell:self atPosition:touchPt];
     }
@@ -388,7 +468,21 @@ static NSMutableSet *jsqMessagesCollectionViewCellActions = nil;
         return CGRectContainsPoint(self.messageBubbleContainerView.frame, touchPt);
     }
     
-    return NO;
+    return YES;
+}
+
+#pragma mark - Actions
+
+- (void)failButtonPressed:(id)sender {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(messagesCollectionViewCellDidTapFailButton:sender:)]) {
+        [self.delegate messagesCollectionViewCellDidTapFailButton:self sender:sender];
+    }
+}
+
+- (void)gotoSystemNotificationButtonPressed:(id)sender {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(messagesCollectionViewCellDidTapGotoSystemNotificationButton:sender:)]) {
+        [self.delegate messagesCollectionViewCellDidTapGotoSystemNotificationButton:self sender:sender];
+    }
 }
 
 @end
